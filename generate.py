@@ -168,7 +168,7 @@ class LineCollection:
             else:
                 m = 0
                 num = 0
-            for j in range(prv, i-num):
+            for j in range(prv, i-num-1):
                 if isinstance(self.ls[j], tuple):
                     continue
                 output.append(self.ls[j].generate())
