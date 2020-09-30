@@ -1,6 +1,7 @@
 import copy
 import pdb
 
+import rstr
 import numpy as np
 
 SEED = 0
@@ -14,10 +15,12 @@ class Item:
     def from_str(cls, s):
         pass
     def evaluate(self, s):
-        if s in Item.names:
-            return Item.names[s]
-        else:
-            return eval(s)
+        for k in Item.names.keys():
+            if k in s:
+                s = s.replace(k, str(Item.names[k]))
+        # if s in Item.names:
+        #     return Item.names[s]
+        return eval(s)
     def generate(self):
         pass
     def __str__(self):
@@ -27,13 +30,11 @@ class Item:
 class Int(Item):
     def __init__(self, name, low, high, s=None, **keys):
         """
-        入力ファイルの1行のうちのスペースで区切られた部分を読み込んだもの
-        (出力には一つの数値だったり1行のpermutationだったり、複数行のグラフだったりに対応する)
+        correspond to the input value between two spaces
         name: str
-            変数名
-            graph / 
+            name of variable
         low/high : str
-            最大値/ 最小値 (等号含む)
+            min / max (inclusive)
         """
         self.name = name
         self.low = low
@@ -54,6 +55,8 @@ class Int(Item):
             return self.s
 
 class Float(Int):
+    """float value of [low, high) with digit numbers after decimal point
+    """
     @classmethod
     def from_str(cls, s):
         name, low, high, digit = s.split(",")
@@ -67,7 +70,7 @@ class Float(Int):
         return s
 
 class Perm(Item):
-    """lowからhighまでの順列
+    """permutation of [low, low+1, ..., high-1, high]
     """
     def __init__(self, low, high, s=None):
         self.low = low
@@ -81,10 +84,37 @@ class Perm(Item):
         low, high = self.evaluate(self.low), self.evaluate(self.high)
         return " ".join(map(str, (rng.permutation(high-low+1) + low).tolist()))
         
+class Str(Item):
+    def __init__(self, pattern):
+        """
+        pattern : str
+            regular expression pattern
+            s.t. 
+            [a-zA-Z]{10}
+            [a-z]{10,Name}
+            (value of Name will be substituted runtime)
+            You cannot specify complicated pattern which does not exist in above example
+        """
+        self.pattern = pattern
+        self.s = pattern
+    @classmethod
+    def from_str(cls, s):
+        return cls(s)
+    def generate(self):
+        pattern = self.pattern
+        if "{" in pattern:
+            p, tmp = pattern.split("{", 1)
+            val, other = tmp.split("}", 1)
+            l = []
+            for item in val.split(","):
+                l.append(str(self.evaluate(item)))
+            pattern = p + "{" + ",".join(l) + "}" + other
+        return rstr.xeger(pattern)
+         
 class Line:
     def __init__(self, l, s=None):
         """
-        入力ファイルの1行を読み込んだもの
+        correspond to a line of input file
         l: list of Item
         """
         self.l = l
@@ -156,8 +186,8 @@ class LineCollection:
         return "\n".join(output)
 
 if __name__=="__main__":
-    s = """Int(N,2,100)
-Float(a,1,100,5) Int(b,1,100)
+    s = """Int(N,2,10)
+Float(a,1,100,5) Str([a-z]{N,2*N})
 *N(1)
 """
     lc = LineCollection.from_str(s)

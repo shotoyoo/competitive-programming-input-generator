@@ -11,6 +11,11 @@ Currently, these macros below are supported:
 
 (note that all values are specified in inclusive manner.)
 
+## required python library
+
+numpy
+rstr
+
 ## Usage
 
 ```python
