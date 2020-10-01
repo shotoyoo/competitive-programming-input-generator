@@ -44,9 +44,11 @@ class Graph(Item):
         if len(v)==2:
             n,m = v
             return cls(n,m)
-        else:
+        elif len(v)==4:
             n,m,low,high = v
             return cls(n,m,low,high)
+        else:
+            raise ValueError("Input length of Graph must be 2 or 4")
     def generate(self):
         n, m = self.evaluate(self.n), self.evaluate(self.m)
         g = random_connected_graph(n, m)

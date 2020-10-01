@@ -80,8 +80,9 @@ Int(N,1,10)
 Perm(2,N+5)
 *T(2)
 """
-    s = """Int(N,100000,100000) Int(M,N-1,N*(N-1)//2)
-Tree1(N)
+    s = """Int(N,3,5) Int(M,N-1,N*(N-1)//2)
+Graph1(N,M,0,10)
 """
     lc = LineCollection.from_str(s)
-    pyperclip.copy(lc.generate())
+    print(lc.generate())
+    # pyperclip.copy(lc.generate())
