@@ -63,7 +63,7 @@ class Float(Int):
         s = sp[0]+"."+sp[1][:int(self.keys["digit"])]
         Item.names[self.name] = float(s)
         return s
-
+        
 class Perm(Item):
     """permutation of [low, low+1, ..., high-1, high]
     """

@@ -1,9 +1,27 @@
+import os
+import sys
+sys.path.append(os.path.dirname(__file__))
 import pdb
 import rstr
 import utils
 from items import *
 from graph import *
-import pyperclip
+
+def evaluate_item(ss):
+    cc, tmp = ss.split("(", 1)
+    vv = tmp[:-1]
+    return globals()[cc].from_str(vv)
+
+class Array(Item):
+    def __init__(self, item, num):
+        self.item = item
+        self.num = num
+    @classmethod
+    def from_str(cls, s):
+        item,num = s.rsplit(",", 1)
+        return cls(evaluate_item(item), num)
+    def generate(self):
+        return " ".join(map(str, [self.item.generate() for _ in range(self.evaluate(self.num))]))
 
 class Line:
     def __init__(self, l, s=None):
@@ -17,9 +35,7 @@ class Line:
     def from_str(cls, s):
         l = []
         for ss in s.split():
-            cc, tmp = ss.split("(", 1)
-            vv = tmp[:-1]
-            l.append(globals()[cc].from_str(vv))
+            l.append(evaluate_item(ss))
         return cls(l)
     def generate(self):
         return " ".join([item.generate() for item in self.l])
@@ -83,6 +99,13 @@ Perm(2,N+5)
     s = """Int(N,3,5) Int(M,N-1,N*(N-1)//2)
 Graph1(N,M,0,10)
 """
+    s = """Int(N,10,20)
+Array(Int(_,1,100),N)
+    """
     lc = LineCollection.from_str(s)
     print(lc.generate())
-    # pyperclip.copy(lc.generate())
+
+    # import pyperclip
+    # lc = LineCollection.from_str(s)
+    # print(lc.generate())
+    # pyperclip.copy(lc.generate()) # copy to clipboard
